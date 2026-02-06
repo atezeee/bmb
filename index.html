@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TG Bot Studio — Telegram Bot Development</title>
+  <meta name="description" content="Telegram bot development: sales, support, booking, AI assistants, integrations. Leave a request — our manager will contact you in Telegram." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+
+<body>
+  <!-- Background ornaments -->
+  <div class="bg-orb orb-a" aria-hidden="true"></div>
+  <div class="bg-orb orb-b" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header class="header" id="top">
+    <nav class="nav">
+      <a class="brand" href="#top" aria-label="TG Bot Studio">
+        <span class="brand__mark" aria-hidden="true">
+          <img src="assets/logo.svg" alt="" />
+        </span>
+        <span class="brand__text">
+          <span class="brand__name">TG Bot Studio</span>
+          <span class="brand__tag" data-i18n="brand.tag">Telegram-боты под ключ</span>
+        </span>
+      </a>
+
+      <button class="nav__burger" id="burger" aria-label="Открыть меню" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="nav__links" id="navLinks">
+        <a href="#services" data-i18n="nav.services">Категории</a>
+        <a href="#process" data-i18n="nav.process">Как работаем</a>
+        <a href="#faq" data-i18n="nav.faq">FAQ</a>
+        <a href="#request" class="pill" data-i18n="nav.request">Оставить заявку</a>
+
+        <button class="lang" id="langBtn" aria-label="Switch language">
+          <span class="lang__ic" aria-hidden="true">🌐</span>
+          <span class="lang__txt" id="langTxt">RU</span>
+        </button>
+
+        <button class="theme" id="themeBtn" aria-label="Переключить тему">
+          <span class="theme__icon" aria-hidden="true">☾</span>
+          <span class="theme__text" data-i18n="nav.theme">Тема</span>
+        </button>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero__content">
+        <div class="badge" data-i18n="hero.badge">
+          <span class="badge__dot" aria-hidden="true"></span>
+          Быстро. Надёжно. Красиво.
+        </div>
+
+        <h1 class="hero__title" data-i18n-html="hero.title">
+          Разработка <span class="grad">Telegram-ботов</span> для бизнеса и сервисов
+        </h1>
+
+        <p class="hero__subtitle" data-i18n="hero.subtitle">
+          Автоматизируем продажи, поддержку, бронирования и интеграции.
+          Помогаем сформировать ТЗ, дизайн, тексты и логику — под ваш кейс.
+        </p>
+
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#request" data-i18n="hero.cta.primary">
+            Рассчитать стоимость
+            <span class="btn__shine" aria-hidden="true"></span>
+          </a>
+          <a class="btn btn--ghost" href="#services" data-i18n="hero.cta.secondary">Посмотреть категории</a>
+        </div>
+
+        <div class="hero__stats">
+          <div class="stat">
+            <div class="stat__k">7–14</div>
+            <div class="stat__v" data-i18n="hero.stats.1">дней на MVP</div>
+          </div>
+          <div class="stat">
+            <div class="stat__k">0%</div>
+            <div class="stat__v" data-i18n="hero.stats.2">лишней бюрократии</div>
+          </div>
+          <div class="stat">
+            <div class="stat__k">∞</div>
+            <div class="stat__v" data-i18n="hero.stats.3">интеграций (API)</div>
+          </div>
+        </div>
+
+        <div class="hero__note">
+          <span class="dot" aria-hidden="true"></span>
+          <span data-i18n="hero.note">
+            Цены ниже — ориентировочные. Итоговая стоимость зависит от логики, интеграций и сроков.
+            После короткого созвона/переписки менеджер предложит точный план и смету.
+          </span>
+        </div>
+      </div>
+
+      <div class="hero__visual" aria-hidden="true">
+        <div class="glass">
+          <img class="hero__img" src="assets/hero-illustration.svg" alt="">
+        </div>
+        <div class="chips">
+          <span class="chip" data-i18n="chips.1">Оплата</span>
+          <span class="chip" data-i18n="chips.2">CRM</span>
+          <span class="chip" data-i18n="chips.3">AI</span>
+          <span class="chip" data-i18n="chips.4">Каталоги</span>
+          <span class="chip" data-i18n="chips.5">Поддержка</span>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="section" id="services">
+      <div class="container">
+        <div class="section__head">
+          <h2 class="section__title" data-i18n="services.title">Категории ботов</h2>
+          <p class="section__subtitle" data-i18n="services.subtitle">
+            Ниже — самые популярные типы. Если у вас нестандартная задача — выбирайте «Индивидуальный бот».
+          </p>
+        </div>
+
+        <!-- Rendered by JS for RU/EN -->
+        <div class="cards cards--services" id="servicesCards"></div>
+
+        <div class="callout reveal" id="integrationsCallout"></div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="process">
+      <div class="container">
+        <div class="section__head">
+          <h2 class="section__title" data-i18n="process.title">Как мы работаем</h2>
+          <p class="section__subtitle" data-i18n="process.subtitle">Прозрачные шаги, чтобы вы понимали результат на каждом этапе.</p>
+        </div>
+
+        <div class="steps" id="processSteps"></div>
+        <div class="strip reveal" id="processStrip"></div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section__head">
+          <h2 class="section__title" data-i18n="faq.title">FAQ</h2>
+          <p class="section__subtitle" data-i18n="faq.subtitle">Ответы на вопросы, которые обычно задают перед стартом.</p>
+        </div>
+
+        <div class="faq" id="faqList"></div>
+      </div>
+    </section>
+
+    <section class="section section--cta" id="request">
+      <div class="container">
+        <div class="cta reveal">
+          <div class="cta__text">
+            <h2 class="cta__title" data-i18n="cta.title">Оставьте заявку — менеджер напишет вам в Telegram</h2>
+            <p class="cta__sub" data-i18n="cta.subtitle">
+              Укажите ваш username и тип бота. Можно добавить краткое описание — мы вернёмся с вопросами и предложением.
+            </p>
+
+            <div class="trust">
+              <div class="trust__item">
+                <span class="trust__ic">⚡</span>
+                <span data-i18n="cta.trust.1">ответ обычно в течение дня</span>
+              </div>
+              <div class="trust__item">
+                <span class="trust__ic">🧾</span>
+                <span data-i18n="cta.trust.2">смета после брифа</span>
+              </div>
+              <div class="trust__item">
+                <span class="trust__ic">🔒</span>
+                <span data-i18n="cta.trust.3">конфиденциальность</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="formWrap">
+            <form id="requestForm" class="form" novalidate>
+              <!-- honeypot -->
+              <input class="hp" type="text" id="website" name="website" autocomplete="off" tabindex="-1" aria-hidden="true"/>
+
+              <label class="field">
+                <span class="field__label" data-i18n="form.name.label">Ваше имя</span>
+                <input id="name" type="text" maxlength="60" data-i18n-placeholder="form.name.ph" placeholder="Например, Алекс" />
+              </label>
+
+              <label class="field">
+                <span class="field__label"><span data-i18n="form.tg.label">Telegram username</span> <span class="req">*</span></span>
+                <input id="telegram" type="text" placeholder="@username" required />
+                <span class="field__hint" id="tgHint" data-i18n="form.tg.hint">Формат: @username (латиница, цифры, _)</span>
+                <span class="field__error" id="tgError"></span>
+              </label>
+
+              <label class="field">
+                <span class="field__label"><span data-i18n="form.cat.label">Категория</span> <span class="req">*</span></span>
+
+                <!-- Custom select (no ugly white dropdown) -->
+                <div class="select" id="categorySelect">
+                  <button type="button" class="select__btn" id="categoryBtn" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="select__value" id="categoryValue" data-i18n="form.cat.ph">Выберите тип</span>
+                    <span class="select__chev" aria-hidden="true">▾</span>
+                  </button>
+                  <div class="select__list" id="categoryList" role="listbox" tabindex="-1"></div>
+                  <input type="hidden" id="category" required />
+                </div>
+
+                <span class="field__error" id="catError"></span>
+              </label>
+
+              <label class="field">
+                <span class="field__label" data-i18n="form.desc.label">Коротко о задаче</span>
+                <textarea id="comment" rows="4" maxlength="800" data-i18n-placeholder="form.desc.ph" placeholder="Например: каталог услуг + запись + напоминания"></textarea>
+                <span class="field__hint"><span id="count">0</span>/800</span>
+              </label>
+
+              <button class="btn btn--primary btn--full" type="submit">
+                <span data-i18n="form.submit">Отправить заявку</span>
+                <span class="btn__shine" aria-hidden="true"></span>
+              </button>
+
+              <p class="form__fine" data-i18n="form.fine">
+                Нажимая “Отправить”, вы соглашаетесь на обработку данных для связи. Мы не спамим.
+              </p>
+
+              <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__in">
+      <div class="footer__left">
+        <div class="brand brand--footer">
+          <span class="brand__mark" aria-hidden="true"><img src="assets/logo.svg" alt=""></span>
+          <span class="brand__text">
+            <span class="brand__name">TG Bot Studio</span>
+            <span class="brand__tag" data-i18n="footer.tag">Сделаем бота, который продаёт и помогает</span>
+          </span>
+        </div>
+        <div class="footer__copy"><span data-i18n="footer.copy">©</span> <span id="year"></span> TG Bot Studio. <span data-i18n="footer.rights">Все права защищены.</span></div>
+      </div>
+
+      <div class="footer__right">
+        <a class="footer__link" href="#services" data-i18n="nav.services">Категории</a>
+        <a class="footer__link" href="#process" data-i18n="nav.process">Процесс</a>
+        <a class="footer__link" href="#request" data-i18n="nav.request">Заявка</a>
+        <a class="footer__link" href="#top" data-i18n="footer.top">Наверх ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
