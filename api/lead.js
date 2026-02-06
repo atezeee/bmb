@@ -80,8 +80,26 @@ module.exports = async (req, res) => {
     const lang = (body.lang === "en") ? "en" : "ru";
     const name = (body.name || "").toString().trim().slice(0, 80);
     const telegram = (body.telegram || "").toString().trim();
-    const categoryKey = (body.categoryKey || "").toString().trim();
-    const categoryLabel = (body.categoryLabel || "").toString().trim().slice(0, 80);
+    const body = req.body || {};
+
+const categoryKey = body.categoryKey || body.category_key || "";
+const categoryLabel = body.categoryLabel || body.category_label || "";
+
+const ALLOWED_CATEGORIES = new Set([
+  "support",
+  "sales",
+  "booking",
+  "community",
+  "edu",
+  "ai",
+  "game",
+  "custom",
+]);
+
+if (!ALLOWED_CATEGORIES.has(String(categoryKey))) {
+  return res.status(400).json({ ok: false, error: "bad_category" });
+}
+
     const description = (body.description || "").toString().trim().slice(0, 1200);
 
     // Honeypot (if you keep it on frontend)
