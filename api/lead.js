@@ -1,16 +1,5 @@
 /**
  * Vercel Serverless Function: /api/lead
- *
- * Receives lead data from the site and forwards it to Telegram.
- * Secrets (bot token/chat id) are stored ONLY in Vercel Environment Variables.
- *
- * Required env:
- *   TELEGRAM_BOT_TOKEN
- *   TELEGRAM_CHAT_ID
- *
- * Optional env:
- *   ALLOWED_ORIGINS="https://buildmybot.ru,https://www.buildmybot.ru,https://buildmybot.online,https://www.buildmybot.online"
- *   RATE_LIMIT_SECONDS="45"
  */
 
 const RATE_LIMIT_SECONDS = parseInt(process.env.RATE_LIMIT_SECONDS || "45", 10);
@@ -46,6 +35,12 @@ function getClientIp(req) {
   return (req.socket && req.socket.remoteAddress) ? req.socket.remoteAddress : "";
 }
 
+function json(res, code, obj) {
+  res.statusCode = code;
+  res.setHeader("Content-Type", "application/json");
+  return res.end(JSON.stringify(obj));
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method !== "POST") {
@@ -71,58 +66,40 @@ module.exports = async (req, res) => {
 
     const ip = getClientIp(req);
     if (ip && tooFast(ip)) {
-      res.statusCode = 429;
-      res.setHeader("Content-Type", "application/json");
-      return res.end(JSON.stringify({ ok: false, error: "rate_limit" }));
+      return json(res, 429, { ok: false, error: "rate_limit" });
     }
 
-    const body = req.body || {};
+    // body может прийти строкой или объектом
+    let body = req.body || {};
+    if (typeof body === "string") {
+      try { body = JSON.parse(body); } catch { body = {}; }
+    }
+
     const lang = (body.lang === "en") ? "en" : "ru";
     const name = (body.name || "").toString().trim().slice(0, 80);
     const telegram = (body.telegram || "").toString().trim();
-    const body = req.body || {};
 
-const categoryKey = body.categoryKey || body.category_key || "";
-const categoryLabel = body.categoryLabel || body.category_label || "";
-
-const ALLOWED_CATEGORIES = new Set([
-  "support",
-  "sales",
-  "booking",
-  "community",
-  "edu",
-  "ai",
-  "game",
-  "custom",
-]);
-
-if (!ALLOWED_CATEGORIES.has(String(categoryKey))) {
-  return res.status(400).json({ ok: false, error: "bad_category" });
-}
+    // ✅ принимаем и snake_case и camelCase
+    const categoryKey = (body.categoryKey || body.category_key || "").toString().trim();
+    const categoryLabel = (body.categoryLabel || body.category_label || "").toString().trim();
 
     const description = (body.description || "").toString().trim().slice(0, 1200);
 
-    // Honeypot (if you keep it on frontend)
+    // Honeypot (если оставил на фронте)
     const website = (body.website || "").toString().trim();
     if (website) {
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      return res.end(JSON.stringify({ ok: true }));
+      return json(res, 200, { ok: true });
     }
 
     // Validate telegram username
     if (!/^@[a-zA-Z0-9_]{4,31}$/.test(telegram)) {
-      res.statusCode = 400;
-      res.setHeader("Content-Type", "application/json");
-      return res.end(JSON.stringify({ ok: false, error: "bad_telegram" }));
+      return json(res, 400, { ok: false, error: "bad_telegram" });
     }
 
     // Validate category (allowlist)
     const allowedCats = new Set(["support","sales","booking","community","edu","ai","game","custom"]);
     if (!allowedCats.has(categoryKey)) {
-      res.statusCode = 400;
-      res.setHeader("Content-Type", "application/json");
-      return res.end(JSON.stringify({ ok: false, error: "bad_category" }));
+      return json(res, 400, { ok: false, error: "bad_category" });
     }
 
     const header = (lang === "en") ? "🆕 New bot request" : "🆕 Новая заявка на бота";
@@ -162,9 +139,7 @@ ${escapeHtml(description || "—")}
       return res.end("Telegram API error: " + txt);
     }
 
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json");
-    return res.end(JSON.stringify({ ok: true }));
+    return json(res, 200, { ok: true });
   } catch (e) {
     res.statusCode = 500;
     return res.end("Server error");
