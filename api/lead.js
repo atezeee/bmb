@@ -156,9 +156,13 @@ ${escapeHtml(description || "—")}
 
     return json(res, 200, { ok: true });
   } catch (e) {
-    // Важно: лог в Vercel
-    console.error("Lead API error:", e);
-    res.statusCode = 500;
-    return res.end("Server error");
+  console.error("Lead API error:", e);
+  res.statusCode = 500;
+  res.setHeader("Content-Type", "application/json");
+  return res.end(JSON.stringify({
+    ok: false,
+    error: "server_error",
+    message: String(e && e.message ? e.message : e)
+  }));
   }
 };
