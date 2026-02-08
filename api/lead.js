@@ -1,11 +1,21 @@
 /**
  * Vercel Serverless Function: /api/lead
- * Forwards lead to Telegram without using fetch (uses https).
+ * Receives lead data and forwards to Telegram.
+ *
+ * Required env:
+ *  - TELEGRAM_BOT_TOKEN
+ *  - TELEGRAM_CHAT_ID
+ *
+ * Optional env:
+ *  - ALLOWED_ORIGINS="https://buildmybot.ru,https://www.buildmybot.ru,https://buildmybot.online,https://www.buildmybot.online"
+ *  - RATE_LIMIT_SECONDS="45"
  */
 
 const https = require("https");
 
 const RATE_LIMIT_SECONDS = parseInt(process.env.RATE_LIMIT_SECONDS || "45", 10);
+
+// Best-effort in-memory rate limit (works on warm instances)
 const lastHitByIp = globalThis.__lead_rl__ || new Map();
 globalThis.__lead_rl__ = lastHitByIp;
 
@@ -27,7 +37,7 @@ function escapeHtml(str) {
 function parseAllowedOrigins() {
   const raw = (process.env.ALLOWED_ORIGINS || "").trim();
   if (!raw) return null;
-  return raw.split(",").map(s => s.trim()).filter(Boolean);
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
 function getClientIp(req) {
@@ -59,7 +69,10 @@ function tgSendMessage(token, payload) {
       (resp) => {
         let body = "";
         resp.on("data", (chunk) => (body += chunk));
-        resp.on("end", () => resolve({ ok: resp.statusCode >= 200 && resp.statusCode < 300, status: resp.statusCode, body }));
+        resp.on("end", () => {
+          const ok = resp.statusCode >= 200 && resp.statusCode < 300;
+          resolve({ ok, status: resp.statusCode, body });
+        });
       }
     );
 
@@ -76,18 +89,19 @@ module.exports = async (req, res) => {
       return res.end("Method Not Allowed");
     }
 
+    // Optional: Origin allowlist
     const allowed = parseAllowedOrigins();
     const origin = (req.headers.origin || "").toString();
     if (allowed && origin && !allowed.includes(origin)) {
-      res.statusCode = 403;
-      return res.end("Forbidden");
+      // важно: возвращаем JSON, чтобы фронт мог показать нормальную ошибку
+      return json(res, 403, { ok: false, error: "forbidden_origin" });
     }
 
     const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
     if (!TOKEN || !CHAT_ID) {
-      res.statusCode = 500;
-      return res.end("Backend is not configured. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in Vercel env vars.");
+      return json(res, 500, { ok: false, error: "backend_not_configured" });
     }
 
     const ip = getClientIp(req);
@@ -106,20 +120,30 @@ module.exports = async (req, res) => {
     const name = String(body.name || "").trim().slice(0, 80);
     const telegram = String(body.telegram || "").trim();
 
+    // ✅ совместимость: snake_case + camelCase
     const categoryKey = String(body.categoryKey || body.category_key || "").trim();
     const categoryLabel = String(body.categoryLabel || body.category_label || "").trim();
     const description = String(body.description || "").trim().slice(0, 1200);
 
+    // Honeypot (если оставлен на фронте)
     const website = String(body.website || "").trim();
     if (website) return json(res, 200, { ok: true });
 
+    // Validate telegram username
     if (!/^@[a-zA-Z0-9_]{4,31}$/.test(telegram)) {
       return json(res, 400, { ok: false, error: "bad_telegram" });
     }
 
-    const allowedCats = new Set(["support","sales","booking","community","edu","ai","game","custom"]);
+    // Validate category
+    const allowedCats = new Set([
+      "support", "sales", "booking", "community", "edu", "ai", "game", "custom"
+    ]);
     if (!allowedCats.has(categoryKey)) {
       return json(res, 400, { ok: false, error: "bad_category" });
+    }
+
+    if (description.length > 1200) {
+      return json(res, 400, { ok: false, error: "too_long" });
     }
 
     const header = (lang === "en") ? "🆕 New bot request" : "🆕 Новая заявка на бота";
@@ -146,23 +170,25 @@ ${escapeHtml(description || "—")}
       chat_id: CHAT_ID,
       text: msg,
       parse_mode: "HTML",
-      disable_web_page_preview: true
+      disable_web_page_preview: true,
     });
 
     if (!tg.ok) {
-      // вернём часть ответа Telegram для диагностики
-      return json(res, 502, { ok: false, error: "telegram_error", details: String(tg.body || "").slice(0, 300) });
+      // Возвращаем часть ответа Telegram, чтобы быстро понять причину
+      return json(res, 502, {
+        ok: false,
+        error: "telegram_error",
+        details: String(tg.body || "").slice(0, 300),
+      });
     }
 
     return json(res, 200, { ok: true });
   } catch (e) {
-  console.error("Lead API error:", e);
-  res.statusCode = 500;
-  res.setHeader("Content-Type", "application/json");
-  return res.end(JSON.stringify({
-    ok: false,
-    error: "server_error",
-    message: String(e && e.message ? e.message : e)
-  }));
+    console.error("Lead API error:", e);
+    return json(res, 500, {
+      ok: false,
+      error: "server_error",
+      message: String(e && e.message ? e.message : e),
+    });
   }
 };
