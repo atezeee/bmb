@@ -14,6 +14,7 @@
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 
 <body>
@@ -223,6 +224,10 @@
                 <span class="field__hint"><span id="count">0</span>/800</span>
               </label>
 
+              <div class="captcha-wrap">
+               <div class="h-captcha" data-sitekey="602ec0a8-4a92-4b8e-9f54-4e481a0000ca"></div>
+              </div>
+              
               <button class="btn btn--primary btn--full" type="submit">
                 <span data-i18n="form.submit">Отправить заявку</span>
                 <span class="btn__shine" aria-hidden="true"></span>
