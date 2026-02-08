@@ -27,7 +27,6 @@ const I18N = {
     services: {
       title: "Категории ботов",
       subtitle: "Ниже — самые популярные типы. Если у вас нестандартная задача — выбирайте «Индивидуальный бот».",
-      // Обновлённый текст кнопки CTA: теперь ведёт на отдельную страницу категории
       cta: "Подробнее →",
       callout: {
         title: "Нужны интеграции?",
@@ -88,7 +87,6 @@ const I18N = {
       name: { label: "Ваше имя", ph: "Например, Алекс" },
       tg: { label: "Telegram username", hint: "Формат: @username (латиница, цифры, _)" },
       cat: { label: "Категория", ph: "Выберите тип" },
-
       desc: { label: "Коротко о задаче", ph: "Например: каталог услуг + запись + напоминания" },
       submit: "Отправить заявку",
       fine: "Нажимая “Отправить”, вы соглашаетесь на обработку данных для связи. Мы не спамим.",
@@ -97,7 +95,8 @@ const I18N = {
         tgEmpty: "Укажите username (пример: @username)",
         tgBad: "Неверный формат. Разрешены латиница, цифры и _. Длина: 5–32.",
         cat: "Выберите категорию",
-        rate: "Слишком часто. Подождите ~45 секунд и попробуйте снова.",
+        captchaRequired: "Пройдите капчу и попробуйте снова.",
+        captchaFailed: "Капча не пройдена. Обновите капчу и попробуйте ещё раз.",
         missingCreds: "Не настроено: проверьте /api/lead и переменные окружения на сервере",
         sent: "Заявка отправлена 🚀 Мы напишем вам в Telegram.",
         fail: "Ошибка отправки. Проверьте, что /api/lead работает и переменные окружения настроены."
@@ -121,7 +120,6 @@ const I18N = {
     services: {
       title: "Bot categories",
       subtitle: "Popular types below. If your task is unique — choose “Custom bot”.",
-      // Updated CTA text: now links to detailed category page
       cta: "Details →",
       callout: {
         title: "Need integrations?",
@@ -146,7 +144,7 @@ const I18N = {
       strip: [
         ["UX & Copy", "buttons, texts, UX"],
         ["Quality", "tests & logging"],
-        ["Support", "post‑launch"],
+        ["Support", "post-launch"],
         ["Timeline", "by milestones"]
       ]
     },
@@ -182,7 +180,6 @@ const I18N = {
       name: { label: "Your name", ph: "e.g., Alex" },
       tg: { label: "Telegram username", hint: "Format: @username (latin letters, digits, _)" },
       cat: { label: "Category", ph: "Select a type" },
-
       desc: { label: "Short description", ph: "e.g., catalog + booking + reminders" },
       submit: "Send request",
       fine: "By clicking “Send”, you agree to data processing for contacting you. No spam.",
@@ -191,7 +188,8 @@ const I18N = {
         tgEmpty: "Please enter your username (example: @username)",
         tgBad: "Invalid format. Use latin letters, digits and _. Length: 5–32.",
         cat: "Please choose a category",
-        rate: "Too fast. Please wait ~45 seconds and try again.",
+        captchaRequired: "Please complete the captcha and try again.",
+        captchaFailed: "Captcha failed. Please refresh the captcha and try again.",
         missingCreds: "Not configured: check /api/lead and server environment variables",
         sent: "Request sent 🚀 We'll message you on Telegram.",
         fail: "Send failed. Check that /api/lead works and server environment variables are configured."
@@ -262,8 +260,8 @@ const SERVICES = {
       price:"$78–$182", hint:"MVP"
     },
     { key:"community", title:"Community bot", icon:"assets/icon-community.svg",
-      text:"Group moderation, welcomes, roles, anti‑spam, access control and useful commands.",
-      bullets:["Anti‑spam/CAPTCHA","Roles/rules","Logs & reports"],
+      text:"Group moderation, welcomes, roles, anti-spam, access control and useful commands.",
+      bullets:["Anti-spam/CAPTCHA","Roles/rules","Logs & reports"],
       price:"$78–$182", hint:"MVP"
     },
     { key:"edu", title:"Learning bot", icon:"assets/icon-edu.svg",
@@ -277,7 +275,7 @@ const SERVICES = {
       price:"$78–$182", hint:"MVP"
     },
     { key:"game", title:"Game bot", icon:"assets/icon-game.svg",
-      text:"Quests, mini‑games, leaderboards, rewards, internal currency, events.",
+      text:"Quests, mini-games, leaderboards, rewards, internal currency, events.",
       bullets:["Gameplay & progress","Seasons/events","Leaderboards"],
       price:"$78–$182", hint:"MVP"
     },
@@ -361,14 +359,12 @@ function renderServices(lang){
           <span class="price__from">${escapeHtml(pricePrefix)}</span>${escapeHtml(s.price)}
           <span class="price__hint">${escapeHtml(s.hint)}</span>
         </div>
-        <!-- Link to detailed category page instead of form section -->
         <a class="link" href="${escapeHtml(s.key)}.html">${escapeHtml(I18N[lang].services.cta)}</a>
       </div>
     `;
     wrap.appendChild(card);
   });
 
-  // Callout
   const c = I18N[lang].services.callout;
   const callout = qs("#integrationsCallout");
   callout.className = "callout reveal";
@@ -436,7 +432,6 @@ function renderFAQ(lang){
 // Custom select (dark dropdown)
 // ==============================
 function openSelect(sel){
-  // close others
   qsa(".select.open").forEach(s => { if(s !== sel) closeSelect(s); });
   sel.classList.add("open");
   const btn = sel.querySelector(".select__btn");
@@ -489,7 +484,6 @@ function buildSelect(rootId, options, hiddenId, valueId, onChange){
     else openSelect(root);
   });
 
-  // Keyboard inside list
   list.addEventListener("keydown", (e) => {
     const opts = qsa(".select__opt", list);
     const idx = opts.findIndex(x => x === document.activeElement);
@@ -514,7 +508,6 @@ function buildSelect(rootId, options, hiddenId, valueId, onChange){
     }
   });
 
-  // Ensure selected aria
   markSelected(rootId, hidden.value || "");
 }
 
@@ -529,21 +522,17 @@ function rebuildCategorySelect(lang){
   const oldRoot = qs("#categorySelect");
   const parent = oldRoot.parentElement;
 
-  // preserve current
   const currentKey = qs("#category").value || "";
 
-  // replace root to drop old listeners
   const clone = oldRoot.cloneNode(true);
   parent.replaceChild(clone, oldRoot);
 
-  // restore current key
   qs("#category").value = currentKey;
 
   const options = SERVICES[lang].map(s => ({ value: s.key, label: s.title }));
 
   buildSelect("#categorySelect", options, "#category", "#categoryValue", () => validateCategory(lang));
 
-  // If current key is not valid in this language (should be valid), fallback to placeholder
   const exists = SERVICES[lang].some(s => s.key === currentKey);
   if(!exists){
     qs("#category").value = "";
@@ -555,9 +544,8 @@ function rebuildCategorySelect(lang){
   }
 }
 
-
 // ==============================
-// Form validation + Telegram send
+// Form validation + send
 // ==============================
 const form = qs("#requestForm");
 const tgInput = qs("#telegram");
@@ -581,7 +569,7 @@ function showToast(text, ok=true){
   setTimeout(() => { toast.style.display = "none"; }, 4500);
 }
 
-// Telegram username: @ + letters/digits/_; 5–32 chars total (Telegram rules)
+// Telegram username: @ + letters/digits/_; 5–32 chars total
 const TG_REGEX = /^@[a-zA-Z0-9_]{4,31}$/;
 
 function normalizeUsername(value){
@@ -630,14 +618,15 @@ tgInput.addEventListener("input", () => {
   if(TG_REGEX.test(v)) tgError.textContent = "";
 });
 
-// Rate limit: 1 request per 45 seconds per browser
-function isRateLimited(){
-  const key = "tgbot_last_send";
-  const last = Number(localStorage.getItem(key) || "0");
-  const now = Date.now();
-  if(now - last < 45000) return true;
-  localStorage.setItem(key, String(now));
-  return false;
+function getHCaptchaToken(){
+  // hCaptcha добавляет скрытое поле name="h-captcha-response"
+  return document.querySelector('[name="h-captcha-response"]')?.value || "";
+}
+
+function resetHCaptcha(){
+  if(window.hcaptcha && typeof window.hcaptcha.reset === "function"){
+    try { window.hcaptcha.reset(); } catch {}
+  }
 }
 
 async function sendToServer(data){
@@ -647,24 +636,26 @@ async function sendToServer(data){
     body: JSON.stringify(data)
   });
 
-  // server returns JSON: { ok: true } or { ok: false, reason: "..." }
-  let json = null;
-  try { json = await res.json(); } catch { json = null; }
+  let payload = null;
+  try { payload = await res.json(); } catch { payload = null; }
 
   if(!res.ok){
-    const reason = json?.reason || (res.status === 429 ? "rate_limit" : "server_error");
+    // backend использует поле "error"
+    const reason = payload?.error || "server_error";
     const err = new Error("Server error");
     err.reason = reason;
+    err.payload = payload;
     throw err;
   }
 
-  if(json && json.ok === false){
+  if(payload && payload.ok === false){
     const err = new Error("Lead rejected");
-    err.reason = json.reason || "rejected";
+    err.reason = payload.error || "rejected";
+    err.payload = payload;
     throw err;
   }
 
-  return json || { ok: true };
+  return payload || { ok: true };
 }
 
 // ==============================
@@ -734,64 +725,49 @@ langBtn.addEventListener("click", () => {
 function applyI18n(lang){
   const dict = I18N[lang];
 
-  // Text nodes
   qsa("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
     const val = deepGet(dict, key);
     if(typeof val === "string") el.textContent = val;
   });
 
-  // HTML nodes
   qsa("[data-i18n-html]").forEach(el => {
     const key = el.getAttribute("data-i18n-html");
     const val = deepGet(dict, key);
     if(typeof val === "string") el.innerHTML = val;
   });
 
-  // Placeholder nodes
   qsa("[data-i18n-placeholder]").forEach(el => {
     const key = el.getAttribute("data-i18n-placeholder");
     const val = deepGet(dict, key);
     if(typeof val === "string") el.setAttribute("placeholder", val);
   });
 
-  // Hero stats (3)
   const statEls = qsa(".hero__stats .stat__v");
   dict.hero.stats.forEach((t, i) => { if(statEls[i]) statEls[i].textContent = t; });
 
-  // Chips (5)
   const chipEls = qsa(".chips .chip");
   dict.chips.forEach((t, i) => { if(chipEls[i]) chipEls[i].textContent = t; });
 
-  // CTA trust (3)
   const trustEls = qsa(".trust .trust__item span[data-i18n^='cta.trust']");
   dict.cta.trust.forEach((t, i) => { if(trustEls[i]) trustEls[i].textContent = t; });
 
-  // Render dynamic content
   renderServices(lang);
   renderProcess(lang);
   renderFAQ(lang);
 
-  // Rebind card pick links (after render)
   bindPickLinks();
-
-  // Rebuild selects (language-dependent options)
   rebuildCategorySelect(lang);
-  // budget selector removed
 
-  // Update placeholders
   if(!qs("#category").value) qs("#categoryValue").textContent = dict.form.cat.ph;
 
-  // Update language indicators
   qs("#langTxt").textContent = lang.toUpperCase();
   document.documentElement.lang = lang;
   localStorage.setItem("tgbot_lang", lang);
 
-  // Clear errors
   tgError.textContent = "";
   catError.textContent = "";
 
-  // Reveal
   revealObserveNew();
 }
 
@@ -818,14 +794,16 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  if(isRateLimited()){
-    showToast(err.rate, false);
-    return;
-  }
-
   const okTg = validateTelegram(lang);
   const okCat = validateCategory(lang);
   if(!okTg || !okCat) return;
+
+  // ✅ hCaptcha token
+  const captchaToken = getHCaptchaToken();
+  if(!captchaToken){
+    showToast(err.captchaRequired, false);
+    return;
+  }
 
   const name = qs("#name").value.trim();
   const telegram = normalizeUsername(tgInput.value);
@@ -841,22 +819,38 @@ form.addEventListener("submit", async (e) => {
       telegram,
       category_key: catKey,
       category_label: catLabel,
-      description: text || ""
+      description: text || "",
+      captcha_token: captchaToken
     });
 
     showToast(err.sent, true);
     form.reset();
     count.textContent = "0";
 
-    // reset selects
     qs("#category").value = "";
-    qs("#categoryValue").textContent = I18N[lang].form.cat.ph;    markSelected("#categorySelect", "");
+    qs("#categoryValue").textContent = I18N[lang].form.cat.ph;
+    markSelected("#categorySelect", "");
+
   }catch(ex){
     console.error(ex);
-    if(ex && (ex.reason === "not_configured" || ex.reason === "missing_env")){
+
+    // точные причины с бэка
+    if(ex?.reason === "backend_not_configured" || ex?.reason === "captcha_not_configured"){
       showToast(err.missingCreds, false);
       return;
     }
+    if(ex?.reason === "captcha_required"){
+      showToast(err.captchaRequired, false);
+      return;
+    }
+    if(ex?.reason === "captcha_failed"){
+      showToast(err.captchaFailed, false);
+      return;
+    }
+
     showToast(err.fail, false);
+  } finally {
+    // сброс капчи, чтобы можно было отправить ещё раз
+    resetHCaptcha();
   }
 });
