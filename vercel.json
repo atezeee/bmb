@@ -2,34 +2,19 @@
   "redirects": [
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "buildmybot.online"
-        }
-      ],
+      "has": [{ "type": "host", "value": "buildmybot.online" }],
       "destination": "https://buildmybot.ru/$1",
       "permanent": true
     },
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.buildmybot.online"
-        }
-      ],
+      "has": [{ "type": "host", "value": "www.buildmybot.online" }],
       "destination": "https://buildmybot.ru/$1",
       "permanent": true
     },
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.buildmybot.ru"
-        }
-      ],
+      "has": [{ "type": "host", "value": "www.buildmybot.ru" }],
       "destination": "https://buildmybot.ru/$1",
       "permanent": true
     }
@@ -38,34 +23,20 @@
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "geolocation=(), microphone=(), camera=()"
-        },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" },
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self';"
         }
       ]
     }
-  ]
-  {
+  ],
   "functions": {
     "api/**/*.js": {
       "runtime": "nodejs18.x"
     }
   }
-}
 }
